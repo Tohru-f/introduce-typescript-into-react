@@ -93,7 +93,7 @@ export const MentorList = ({
               <td>{user.availableStartCode}</td>
               <td>{user.availableEndCode}</td>
               {/* 配列を改行でつなげる */}
-              <td>{user.availableStudent.join('\n')}</td>{' '}
+              <td>{user.availableStudent.join('\n')}</td>
             </tr>
           ))}
         </tbody>

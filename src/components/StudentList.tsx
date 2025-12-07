@@ -104,7 +104,7 @@ export const StudentList = ({
             <td>{user.studyLangs.join('\n')}</td> {/* 配列を改行でつなげる */}
             <td>{user.score}</td>
             {/* 配列を改行でつなげる */}
-            <td>{user.availableMentor.join('\n')}</td>{' '}
+            <td>{user.availableMentor.join('\n')}</td>
           </tr>
         ))}
       </tbody>
