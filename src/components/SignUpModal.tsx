@@ -1,62 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { USER_LIST } from '../../public/UserData';
-
-type Student = {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  age: number;
-  postCode: string;
-  phone: string;
-  hobbies: string[];
-  url: string;
-  studyMinutes: number;
-  taskCode: number;
-  studyLangs: string[];
-  score: number;
-  availableMentor: string[];
-};
-
-type Mentor = {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  age: number;
-  postCode: string;
-  phone: string;
-  hobbies: string[];
-  url: string;
-  experienceDays: number;
-  useLangs: string[];
-  availableStartCode: number;
-  availableEndCode: number;
-  availableStudent: string[];
-};
-
-type User = {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  age: number;
-  postCode: string;
-  phone: string;
-  hobbies: string[];
-  url: string;
-  studyMinutes?: number;
-  experienceDays?: number;
-  taskCode?: number;
-  studyLangs?: string[];
-  useLangs?: string[];
-  score?: number;
-  availableStartCode?: number;
-  availableEndCode?: number;
-  availableStudent?: string[];
-  availableMentor?: string[];
-};
+import type { Mentor, Student, User } from '../types/types';
 
 const Modal = styled.div`
   position: fixed;
@@ -104,8 +49,7 @@ export const SignUpModal = ({
   close,
   userList,
   setUserList,
-  setStudentList,
-  setMentorList,
+  setFilteredList,
 }: {
   show: boolean;
   // クリックとキーボードの両方で使用するため、両方受けられるこの方にしている。
@@ -114,11 +58,17 @@ export const SignUpModal = ({
   close: () => void;
   userList: User[];
   setUserList: React.Dispatch<React.SetStateAction<User[]>>;
-  setStudentList: React.Dispatch<React.SetStateAction<Student[]>>;
-  setMentorList: React.Dispatch<React.SetStateAction<Mentor[]>>;
+  setFilteredList: React.Dispatch<React.SetStateAction<User[]>>;
 }) => {
-  // 初期値においてrole部分は型が決まれば一緒に決まるので、リテラル型で固定する
-  const [student, setStudent] = useState<Student>({
+  // student, mentorの両方でhobbiesを管理するために別途作成。他のプロパティと同様に直接set関数で受け取ると
+  // splitメソッドが意図した通りに機能しないので、userListに登録する直前まではこれらのstate変数で管理する
+  const [hobbiesInput, setHobbiesInput] = useState<string>(''); //student, mentorの両方で使用
+  const [studyLangsInput, setStudyLangsInput] = useState<string>(''); // studentで使用
+  const [useLangsInput, setUseLangsInput] = useState<string>(''); // mentorで使用
+
+  // student・mentorの入力内容を管理する
+  // 初期値においてrole部分は型が決まれば一緒に決まるので、リテラル型で固定する。roleはstudentをベース値とする。
+  const [inputUser, setInputUser] = useState<User>({
     id: 0,
     name: '',
     role: 'student',
@@ -126,40 +76,22 @@ export const SignUpModal = ({
     age: 0,
     postCode: '',
     phone: '',
-    hobbies: [],
+    hobbies: [hobbiesInput],
     url: '',
     studyMinutes: 0,
     taskCode: 0,
-    studyLangs: [],
+    studyLangs: [studyLangsInput],
     score: 0,
     availableMentor: [],
-  });
-  // student, mentorの両方でhobbiesを管理するために別途作成。他のプロパティと同様に直接set関数で受け取ると
-  // splitメソッドが意図した通りに機能しないので、userListに登録する直前まではこれらのstate変数で管理する
-  const [hobbiesInput, setHobbiesInput] = useState<string>(''); //student, mentorの両方で使用
-  const [studyLangsInput, setStudyLangsInput] = useState<string>(''); // studentで使用
-  const [useLangsInput, setUseLangsInput] = useState<string>(''); // mentorで使用
-
-  //モーダルをstudentとmentorで分岐させるために使用
-  const [modalType, setModalType] = useState<string>('');
-
-  // 初期値においてrole部分は型が決まれば一緒に決まるので、リテラル型で固定する
-  const [mentor, setMentor] = useState<Mentor>({
-    id: 0,
-    name: '',
-    role: 'mentor',
-    email: '',
-    age: 0,
-    postCode: '',
-    phone: '',
-    hobbies: [],
-    url: '',
     experienceDays: 0,
-    useLangs: [],
+    useLangs: [useLangsInput],
     availableStartCode: 0,
     availableEndCode: 0,
     availableStudent: [],
   });
+
+  //モーダルをstudentとmentorで分岐させるために使用
+  const [modalType, setModalType] = useState<string>('');
 
   // 大元のリストデータ
   const baseList = USER_LIST as User[];
@@ -174,11 +106,12 @@ export const SignUpModal = ({
   const [designatedId, setDesignatedId] = useState<number>(maxId);
 
   const handleStudentRegistration = () => {
+    const studentInput = inputUser as Student;
     // 入力されたtaskCodeに対応できるmentorのリストを作成する
     const availableMentor: Mentor[] = mentorList.filter(
       (mentor) =>
-        mentor.availableStartCode <= student.taskCode &&
-        student.taskCode <= mentor.availableEndCode
+        mentor.availableStartCode <= studentInput.taskCode &&
+        studentInput.taskCode <= mentor.availableEndCode
     );
     // 対応可能なメンターの配列から前だけを取り出す
     const availableMentorsName: string[] = availableMentor.map(
@@ -188,7 +121,7 @@ export const SignUpModal = ({
     // set関数で新しく登録するためのstudentデータを定数のオブジェクトで生成する。
     // split, map, filterの部分はそれぞれをstate変数として管理している特定のプロパティをカンマで区切った配列に切り替える
     const nextStudent: Student = {
-      ...student,
+      ...studentInput,
       id: designatedId,
       hobbies: hobbiesInput
         .split(',')
@@ -200,19 +133,18 @@ export const SignUpModal = ({
         .filter((hobby) => hobby !== ''),
       availableMentor: availableMentorsName,
     };
-    setStudent(nextStudent);
+    setInputUser(nextStudent);
     // set関数の更新にはstate変数ではなく、定数のオブジェクトを使う。state変数は同じ処理内で使っても再レンダリング後で
     // なければ値の更新がされないので、set関数の引数には適さない
     const addedUserList = [...userList, nextStudent];
     setUserList(addedUserList);
-    // 生徒一覧のデータも反映されるように更新する
-    const newStudentList = addedUserList.filter(
-      (user) => user.role === 'student'
-    ) as Student[];
-    setStudentList(newStudentList);
+    // 生徒・メンター用のデータも反映されるように更新する
+    setFilteredList(addedUserList);
     close();
     // 新規登録が終わったらそれぞれの入力内容はデフォルトに戻して、idのstate変数は次に備えてインクリメントする
-    setStudent({
+    setHobbiesInput('');
+    setStudyLangsInput('');
+    setInputUser({
       id: 0,
       name: '',
       role: 'student',
@@ -220,16 +152,19 @@ export const SignUpModal = ({
       age: 0,
       postCode: '',
       phone: '',
-      hobbies: [],
+      hobbies: [hobbiesInput],
       url: '',
       studyMinutes: 0,
       taskCode: 0,
-      studyLangs: [],
+      studyLangs: [studyLangsInput],
       score: 0,
       availableMentor: [],
+      experienceDays: 0,
+      useLangs: [useLangsInput],
+      availableStartCode: 0,
+      availableEndCode: 0,
+      availableStudent: [],
     });
-    setHobbiesInput('');
-    setStudyLangsInput('');
     setModalType('');
     setDesignatedId(designatedId + 1);
   };
@@ -239,17 +174,19 @@ export const SignUpModal = ({
   ) as Student[];
 
   const handleMentorRegistration = () => {
+    const mentorInput = inputUser as Mentor;
     const availableStudent: Student[] = studentList.filter(
       (student) =>
-        mentor.availableStartCode <= student.taskCode &&
-        student.taskCode <= mentor.availableEndCode
+        mentorInput.availableStartCode <= student.taskCode &&
+        student.taskCode <= mentorInput.availableEndCode
     );
     const availableStudentName: string[] = availableStudent.map(
       (student) => student.name
     );
     const nextMentor: Mentor = {
-      ...mentor,
+      ...mentorInput,
       id: designatedId,
+      role: 'mentor',
       hobbies: hobbiesInput
         .split(',')
         .map((hobby) => hobby.trim())
@@ -260,50 +197,44 @@ export const SignUpModal = ({
         .filter((hobby) => hobby !== ''),
       availableStudent: availableStudentName,
     };
-    setMentor(nextMentor);
+    setInputUser(nextMentor);
     const addedUserList = [...userList, nextMentor];
     setUserList(addedUserList);
-    const newMentorList = addedUserList.filter(
-      (user) => user.role === 'mentor'
-    ) as Mentor[];
-    setMentorList(newMentorList);
+    // 生徒・メンター用のリストも同時に更新する
+    setFilteredList(addedUserList);
     close();
-    setMentor({
+    setHobbiesInput('');
+    setUseLangsInput('');
+    setInputUser({
       id: 0,
       name: '',
-      role: 'mentor',
+      role: 'student',
       email: '',
       age: 0,
       postCode: '',
       phone: '',
-      hobbies: [],
+      hobbies: [hobbiesInput],
       url: '',
+      studyMinutes: 0,
+      taskCode: 0,
+      studyLangs: [studyLangsInput],
+      score: 0,
+      availableMentor: [],
       experienceDays: 0,
-      useLangs: [],
+      useLangs: [useLangsInput],
       availableStartCode: 0,
       availableEndCode: 0,
       availableStudent: [],
     });
-    setHobbiesInput('');
-    setUseLangsInput('');
     setModalType('');
     setDesignatedId(designatedId + 1);
   };
 
   // 入力内容を受け取って、state変数を逐次更新する
-  const handleStudentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUserChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setStudent({
-      ...student,
-      [name]: value,
-    });
-  };
-
-  // 入力内容を受け取って、state変数を逐次更新する
-  const handleMentorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setMentor({
-      ...mentor,
+    setInputUser({
+      ...inputUser,
       [name]: value,
     });
   };
@@ -317,50 +248,50 @@ export const SignUpModal = ({
           <input
             placeholder="id"
             name="id"
-            value={student.id}
-            onChange={handleStudentChange}
+            value={inputUser.id}
+            onChange={handleUserChange}
           />
           <Label>name</Label>
           <input
             placeholder="name"
             name="name"
-            value={student.name}
-            onChange={handleStudentChange}
+            value={inputUser.name}
+            onChange={handleUserChange}
           />
           <Label>role</Label>
           <input
             placeholder="role"
             name="role"
             value="student"
-            onChange={handleStudentChange}
+            onChange={handleUserChange}
           />
           <Label>email</Label>
           <input
             placeholder="email"
             name="email"
-            value={student.email}
-            onChange={handleStudentChange}
+            value={inputUser.email}
+            onChange={handleUserChange}
           />
           <Label>age</Label>
           <input
             placeholder="age"
             name="age"
-            value={student.age}
-            onChange={handleStudentChange}
+            value={inputUser.age}
+            onChange={handleUserChange}
           />
           <Label>postCode</Label>
           <input
             placeholder="postCode"
             name="postCode"
-            value={student.postCode}
-            onChange={handleStudentChange}
+            value={inputUser.postCode}
+            onChange={handleUserChange}
           />
           <Label>phone</Label>
           <input
             placeholder="phone"
             name="phone"
-            value={student.phone}
-            onChange={handleStudentChange}
+            value={inputUser.phone}
+            onChange={handleUserChange}
           />
           <Label>hobbies</Label>
           <input
@@ -374,22 +305,22 @@ export const SignUpModal = ({
           <input
             placeholder="url"
             name="url"
-            value={student.url}
-            onChange={handleStudentChange}
+            value={inputUser.url}
+            onChange={handleUserChange}
           />
           <Label>studyMinutes</Label>
           <input
             placeholder="studyMinutes"
             name="studyMinutes"
-            value={student.studyMinutes}
-            onChange={handleStudentChange}
+            value={inputUser.studyMinutes}
+            onChange={handleUserChange}
           />
           <Label>taskCode</Label>
           <input
             placeholder="taskCode"
             name="taskCode"
-            value={student.taskCode}
-            onChange={handleStudentChange}
+            value={inputUser.taskCode}
+            onChange={handleUserChange}
           />
           <Label>studyLangs</Label>
           <input
@@ -403,8 +334,8 @@ export const SignUpModal = ({
           <input
             placeholder="score"
             name="score"
-            value={student.score}
-            onChange={handleStudentChange}
+            value={inputUser.score}
+            onChange={handleUserChange}
           />
           <button onClick={handleStudentRegistration}>登録</button>
         </Modal>
@@ -416,50 +347,50 @@ export const SignUpModal = ({
           <input
             placeholder="id"
             name="id"
-            value={mentor.id}
-            onChange={handleMentorChange}
+            value={inputUser.id}
+            onChange={handleUserChange}
           />
           <Label>name</Label>
           <input
             placeholder="name"
             name="name"
-            value={mentor.name}
-            onChange={handleMentorChange}
+            value={inputUser.name}
+            onChange={handleUserChange}
           />
           <Label>role</Label>
           <input
             placeholder="role"
             name="role"
             value="mentor"
-            onChange={handleMentorChange}
+            onChange={handleUserChange}
           />
           <Label>email</Label>
           <input
             placeholder="email"
             name="email"
-            value={mentor.email}
-            onChange={handleMentorChange}
+            value={inputUser.email}
+            onChange={handleUserChange}
           />
           <Label>age</Label>
           <input
             placeholder="age"
             name="age"
-            value={mentor.age}
-            onChange={handleMentorChange}
+            value={inputUser.age}
+            onChange={handleUserChange}
           />
           <Label>postCode</Label>
           <input
             placeholder="postCode"
             name="postCode"
-            value={mentor.postCode}
-            onChange={handleMentorChange}
+            value={inputUser.postCode}
+            onChange={handleUserChange}
           />
           <Label>phone</Label>
           <input
             placeholder="phone"
             name="phone"
-            value={mentor.phone}
-            onChange={handleMentorChange}
+            value={inputUser.phone}
+            onChange={handleUserChange}
           />
           <Label>hobbies</Label>
           <input
@@ -473,15 +404,15 @@ export const SignUpModal = ({
           <input
             placeholder="url"
             name="url"
-            value={mentor.url}
-            onChange={handleMentorChange}
+            value={inputUser.url}
+            onChange={handleUserChange}
           />
           <Label>experienceDays </Label>
           <input
             placeholder="experienceDays	"
-            name="experienceDays	"
-            value={mentor.experienceDays}
-            onChange={handleMentorChange}
+            name="experienceDays"
+            value={inputUser.experienceDays}
+            onChange={handleUserChange}
           />
           <Label>useLangs</Label>
           <input
@@ -495,15 +426,15 @@ export const SignUpModal = ({
           <input
             placeholder="availableStartCode"
             name="availableStartCode"
-            value={mentor.availableStartCode}
-            onChange={handleMentorChange}
+            value={inputUser.availableStartCode}
+            onChange={handleUserChange}
           />
           <Label>availableEndCode </Label>
           <input
             placeholder="availableEndCode"
             name="availableEndCode"
-            value={mentor.availableEndCode}
-            onChange={handleMentorChange}
+            value={inputUser.availableEndCode}
+            onChange={handleUserChange}
           />
           <button onClick={handleMentorRegistration}>登録</button>
         </Modal>

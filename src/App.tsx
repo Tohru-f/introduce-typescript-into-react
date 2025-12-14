@@ -1,67 +1,9 @@
 import { useEffect, useState } from 'react';
 import { USER_LIST } from '../public/UserData.ts';
 import { UserList } from './components/UserList';
-import { StudentList } from './components/StudentList';
-import { MentorList } from './components/MentorList';
 import styled from 'styled-components';
 import { SignUpModal } from './components/SignUpModal.tsx';
-
-// 両方の片方のroleで使われるプロパティはオプショナルにする
-type User = {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  age: number;
-  postCode: string;
-  phone: string;
-  hobbies: string[];
-  url: string;
-  studyMinutes?: number;
-  experienceDays?: number;
-  taskCode?: number;
-  studyLangs?: string[];
-  useLangs?: string[];
-  score?: number;
-  availableStartCode?: number;
-  availableEndCode?: number;
-  availableStudent?: string[];
-  availableMentor?: string[];
-};
-
-type Student = {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  age: number;
-  postCode: string;
-  phone: string;
-  hobbies: string[];
-  url: string;
-  studyMinutes: number;
-  taskCode: number;
-  studyLangs: string[];
-  score: number;
-  availableMentor: string[];
-};
-
-type Mentor = {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  age: number;
-  postCode: string;
-  phone: string;
-  hobbies: string[];
-  url: string;
-  experienceDays: number;
-  useLangs: string[];
-  availableStartCode: number;
-  availableEndCode: number;
-  availableStudent: string[];
-};
+import type { Mentor, Student, User } from './types/types.ts';
 
 const BackGround = styled.div`
   display: flex;
@@ -79,8 +21,7 @@ const TabGroup = styled.div`
 
 function App() {
   const [userList, setUserList] = useState<User[]>([]);
-  const [studentList, setStudentList] = useState<Student[]>([]);
-  const [mentorList, setMentorList] = useState<Mentor[]>([]);
+  const [filteredList, setFilteredList] = useState<User[]>([]);
 
   // モーダルの表示を管理する
   const [showSignUpModal, setShowSignUpModal] = useState<boolean>(false);
@@ -132,14 +73,7 @@ function App() {
       return user;
     });
     setUserList(WithAvailableStudentAndMentor);
-    const filteredStudentList = WithAvailableStudentAndMentor.filter(
-      (user) => user.role === 'student'
-    ) as Student[];
-    setStudentList(filteredStudentList);
-    const filteredMentorList = WithAvailableStudentAndMentor.filter(
-      (user) => user.role === 'mentor'
-    ) as Mentor[];
-    setMentorList(filteredMentorList);
+    setFilteredList(WithAvailableStudentAndMentor);
   }, []);
 
   // タブの切り替えを管理
@@ -149,9 +83,17 @@ function App() {
   };
   const handleStudentClick = () => {
     setTab('student');
+    const filteredStudentList = userList.filter(
+      (user) => user.role === 'student'
+    ) as Student[];
+    setFilteredList(filteredStudentList);
   };
   const handleMentorClick = () => {
     setTab('mentor');
+    const filteredMentorList = userList.filter(
+      (user) => user.role === 'mentor'
+    ) as Mentor[];
+    setFilteredList(filteredMentorList);
   };
 
   return (
@@ -200,23 +142,21 @@ function App() {
           </label>
         </div>
       </TabGroup>
-      {tab === 'user' && <UserList userList={userList} />}
-      {tab === 'student' && (
-        <StudentList
-          studentList={studentList}
-          setStudentList={setStudentList}
-        />
-      )}
-      {tab === 'mentor' && (
-        <MentorList mentorList={mentorList} setMentorList={setMentorList} />
-      )}
+
+      {/* タブ別に表示するユーザー・生徒・メンターのコンポーネント */}
+      <UserList
+        userList={userList}
+        filteredList={filteredList}
+        setFilteredList={setFilteredList}
+        tab={tab}
+      />
+
       <SignUpModal
         show={showSignUpModal}
         close={closeSignUpModalHandler}
         userList={userList}
         setUserList={setUserList}
-        setStudentList={setStudentList}
-        setMentorList={setMentorList}
+        setFilteredList={setFilteredList}
       />
     </BackGround>
   );
