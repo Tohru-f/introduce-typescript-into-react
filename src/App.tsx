@@ -43,7 +43,7 @@ function App() {
 
     // 初期データではavailableMentorとavailableStudentのプロパティが入力されていないので、
     // データから判別して決めてあげる
-    const WithAvailableStudentAndMentor = baseList.map((user) => {
+    const withAvailableStudentAndMentor = baseList.map((user) => {
       if (user.role === 'student') {
         const student = user as Student;
         const filteredMentor = mentorList.filter(
@@ -72,8 +72,8 @@ function App() {
 
       return user;
     });
-    setUserList(WithAvailableStudentAndMentor);
-    setFilteredList(WithAvailableStudentAndMentor);
+    setUserList(withAvailableStudentAndMentor);
+    setFilteredList(withAvailableStudentAndMentor);
   }, []);
 
   // タブの切り替えを管理

@@ -312,14 +312,14 @@ export const SignUpModal = ({
           <input
             placeholder="studyMinutes"
             name="studyMinutes"
-            value={inputUser.studyMinutes}
+            value={(inputUser as Student).studyMinutes}
             onChange={handleUserChange}
           />
           <Label>taskCode</Label>
           <input
             placeholder="taskCode"
             name="taskCode"
-            value={inputUser.taskCode}
+            value={(inputUser as Student).taskCode}
             onChange={handleUserChange}
           />
           <Label>studyLangs</Label>
@@ -334,7 +334,7 @@ export const SignUpModal = ({
           <input
             placeholder="score"
             name="score"
-            value={inputUser.score}
+            value={(inputUser as Student).score}
             onChange={handleUserChange}
           />
           <button onClick={handleStudentRegistration}>登録</button>
@@ -411,7 +411,7 @@ export const SignUpModal = ({
           <input
             placeholder="experienceDays	"
             name="experienceDays"
-            value={inputUser.experienceDays}
+            value={(inputUser as Mentor).experienceDays}
             onChange={handleUserChange}
           />
           <Label>useLangs</Label>
@@ -426,14 +426,14 @@ export const SignUpModal = ({
           <input
             placeholder="availableStartCode"
             name="availableStartCode"
-            value={inputUser.availableStartCode}
+            value={(inputUser as Mentor).availableStartCode}
             onChange={handleUserChange}
           />
           <Label>availableEndCode </Label>
           <input
             placeholder="availableEndCode"
             name="availableEndCode"
-            value={inputUser.availableEndCode}
+            value={(inputUser as Mentor).availableEndCode}
             onChange={handleUserChange}
           />
           <button onClick={handleMentorRegistration}>登録</button>
