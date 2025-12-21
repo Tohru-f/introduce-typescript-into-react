@@ -20,7 +20,7 @@ const TabGroup = styled.div`
 `;
 
 function App() {
-  const [userList, setUserList] = useState<User[]>([]);
+  const [userList, setUserList] = useState<User[]>(USER_LIST);
   const [filteredList, setFilteredList] = useState<User[]>([]);
 
   // モーダルの表示を管理する
@@ -29,21 +29,19 @@ function App() {
   const closeSignUpModalHandler = () => setShowSignUpModal(false);
 
   useEffect(() => {
-    const baseList = USER_LIST as User[];
-
     // mentorのみのリストであり、型アサーションで型を確定させている
-    const mentorList = baseList.filter(
+    const mentorList = userList.filter(
       (mentorLike) => mentorLike.role === 'mentor'
     ) as Mentor[];
 
     // studentのみのリストであり、型アサーションで型を確定させている
-    const studentList = baseList.filter(
+    const studentList = userList.filter(
       (studentLike) => studentLike.role === 'student'
     ) as Student[];
 
     // 初期データではavailableMentorとavailableStudentのプロパティが入力されていないので、
     // データから判別して決めてあげる
-    const withAvailableStudentAndMentor = baseList.map((user) => {
+    const withAvailableStudentAndMentor = userList.map((user) => {
       if (user.role === 'student') {
         const student = user as Student;
         const filteredMentor = mentorList.filter(

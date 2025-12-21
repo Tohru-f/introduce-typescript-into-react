@@ -23,23 +23,20 @@ export const UserList = ({
   // scoreの昇順・降順を管理
   const [isAscendingScore, setIsAscendingScore] = useState<boolean>(false);
 
-  let sortedList!: Student[];
-
   // 定数sortedListに昇順・降順に並べ直した配列を代入して、set関数に渡すことで再レンダリングを促す
   const handleStudyMinutesClick = () => {
     if (tab !== 'student') {
       return;
     }
     if (isAscendingStudyMinutes === false) {
-      sortedList = (filteredList as Student[]).toSorted(
-        (a, b) => a.studyMinutes - b.studyMinutes
+      setFilteredList((prev) =>
+        (prev as Student[]).toSorted((a, b) => a.studyMinutes - b.studyMinutes)
       );
       setIsAscendingStudyMinutes(true);
     } else {
-      sortedList = (filteredList as Student[]).toReversed();
+      setFilteredList((prev) => (prev as Student[]).toReversed());
       setIsAscendingStudyMinutes(false);
     }
-    setFilteredList(sortedList);
   };
 
   // 定数sortedListに昇順・降順に並べ直した配列を代入して、set関数に渡すことで再レンダリングを促す
@@ -48,15 +45,14 @@ export const UserList = ({
       return;
     }
     if (isAscendingScore === false) {
-      sortedList = (filteredList as Student[]).toSorted(
-        (a, b) => a.score - b.score
+      setFilteredList((prev) =>
+        (prev as Student[]).toSorted((a, b) => a.score - b.score)
       );
       setIsAscendingScore(true);
     } else {
-      sortedList = (filteredList as Student[]).toReversed();
+      setFilteredList((prev) => (prev as Student[]).toReversed());
       setIsAscendingScore(false);
     }
-    setFilteredList(sortedList);
   };
 
   // リストの昇順・降順を管理する
@@ -67,195 +63,143 @@ export const UserList = ({
     if (tab !== 'mentor') {
       return;
     }
-    let sortedList!: Mentor[];
     if (isAscending === false) {
-      sortedList = (filteredList as Mentor[]).toSorted(
-        (a, b) => a.experienceDays - b.experienceDays
+      setFilteredList((prev) =>
+        (prev as Mentor[]).toSorted(
+          (a, b) => a.experienceDays - b.experienceDays
+        )
       );
       setIsAscending(true);
     } else {
-      sortedList = (filteredList as Mentor[]).toReversed();
+      setFilteredList((prev) => (prev as Mentor[]).toReversed());
       setIsAscending(false);
     }
-    setFilteredList(sortedList);
   };
+
+  // 表示部分を管理するコンポーネント
+  const UserRow = ({ user }: { user: User }) => (
+    <tr>
+      <th scope="row">{user.id}</th>
+      <td>{user.name}</td>
+      <td>{user.role}</td>
+      <td>{user.email}</td>
+      <td>{user.age}</td>
+      <td>{user.postCode}</td>
+      <td>{user.phone}</td>
+      <td>{user.hobbies.join('\n')}</td>
+      <td>{user.url}</td>
+      {/* roleによって存在しないプロパティは三項演算子で分岐させる */}
+      {'studyMinutes' in user ? (
+        <td>{user.studyMinutes}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {'experienceDays' in user ? (
+        <td>{user.experienceDays}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {'taskCode' in user ? (
+        <td>{user.taskCode}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {/* 配列を改行でつなげる */}
+      {'studyLangs' in user ? (
+        <td>{user.studyLangs.join('\n')}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {/* 配列を改行でつなげる */}
+      {'useLangs' in user ? (
+        <td>{user.useLangs.join('\n')}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {'score' in user ? <td>{user.score}</td> : tab === 'user' && <td></td>}
+      {'availableStartCode' in user ? (
+        <td>{user.availableStartCode}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {'availableEndCode' in user ? (
+        <td>{user.availableEndCode}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {/* 配列を改行でつなげる */}
+      {'availableStudent' in user ? (
+        <td>{user.availableStudent.join('\n')}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+      {/* 配列を改行でつなげる */}
+      {'availableMentor' in user ? (
+        <td>{user.availableMentor.join('\n')}</td>
+      ) : (
+        tab === 'user' && <td></td>
+      )}
+    </tr>
+  );
 
   return (
     <BackGround>
       <table className="table">
         <thead>
           <tr>
-            {/* user用のコンポーネント */}
-            {tab === 'user' && (
-              <>
-                <th scope="col">id</th>
-                <th scope="col">name</th>
-                <th scope="col">role</th>
-                <th scope="col">email</th>
-                <th scope="col">age</th>
-                <th scope="col">postCode</th>
-                <th scope="col">phone</th>
-                <th scope="col">hobbies</th>
-                <th scope="col">url</th>
-                <th scope="col">studyMinutes</th>
-                <th scope="col">experienceDays</th>
-                <th scope="col">taskCode</th>
-                <th scope="col">studyLangs</th>
-                <th scope="col">useLangs</th>
-                <th scope="col">score</th>
-                <th scope="col">availableStartCode</th>
-                <th scope="col">availableEndCode</th>
-                <th scope="col">availableStudent</th>
-                <th scope="col">availableMentor</th>
-              </>
+            <th scope="col">id</th>
+            <th scope="col">name</th>
+            <th scope="col">role</th>
+            <th scope="col">email</th>
+            <th scope="col">age</th>
+            <th scope="col">postCode</th>
+            <th scope="col">phone</th>
+            <th scope="col">hobbies</th>
+            <th scope="col">url</th>
+            {(tab === 'user' || tab === 'student') && (
+              <th scope="col" onClick={handleStudyMinutesClick}>
+                studyMinutes
+              </th>
             )}
-            {/* student用のコンポーネント */}
-            {tab === 'student' && (
-              <>
-                <th scope="col">id</th>
-                <th scope="col">name</th>
-                <th scope="col">role</th>
-                <th scope="col">email</th>
-                <th scope="col">age</th>
-                <th scope="col">postCode</th>
-                <th scope="col">phone</th>
-                <th scope="col">hobbies</th>
-                <th scope="col">url</th>
-                <th scope="col" onClick={handleStudyMinutesClick}>
-                  studyMinutes
-                </th>
-                <th scope="col">taskCode</th>
-                <th scope="col">studyLangs</th>
-                <th scope="col" onClick={handleScoreClick}>
-                  score
-                </th>
-                <th scope="col">availableMentor</th>
-              </>
+            {(tab === 'user' || tab === 'mentor') && (
+              <th scope="col" onClick={handleExperienceDays}>
+                experienceDays
+              </th>
             )}
-            {/* mentor用のコンポーネント */}
-            {tab === 'mentor' && (
-              <>
-                <th scope="col">id</th>
-                <th scope="col">name</th>
-                <th scope="col">role</th>
-                <th scope="col">email</th>
-                <th scope="col">age</th>
-                <th scope="col">postCode</th>
-                <th scope="col">phone</th>
-                <th scope="col">hobbies</th>
-                <th scope="col">url</th>
-                <th scope="col" onClick={handleExperienceDays}>
-                  experienceDays
-                </th>
-                <th scope="col">useLangs</th>
-                <th scope="col">availableStartCode</th>
-                <th scope="col">availableEndCode</th>
-                <th scope="col">availableStudent</th>
-              </>
+            {(tab === 'user' || tab === 'student') && (
+              <th scope="col">taskCode</th>
+            )}
+            {(tab === 'user' || tab === 'student') && (
+              <th scope="col">studyLangs</th>
+            )}
+            {(tab === 'user' || tab === 'mentor') && (
+              <th scope="col">useLangs</th>
+            )}
+            {(tab === 'user' || tab === 'student') && (
+              <th scope="col" onClick={handleScoreClick}>
+                score
+              </th>
+            )}
+            {(tab === 'user' || tab === 'mentor') && (
+              <th scope="col">availableStartCode</th>
+            )}
+            {(tab === 'user' || tab === 'mentor') && (
+              <th scope="col">availableEndCode</th>
+            )}
+            {(tab === 'user' || tab === 'mentor') && (
+              <th scope="col">availableStudent</th>
+            )}
+            {(tab === 'user' || tab === 'student') && (
+              <th scope="col">availableMentor</th>
             )}
           </tr>
         </thead>
         <tbody>
           {tab === 'user' &&
-            userList.map((user) => (
-              <tr key={user.id}>
-                <th scope="row">{user.id}</th>
-                <td>{user.name}</td>
-                <td>{user.role}</td>
-                <td>{user.email}</td>
-                <td>{user.age}</td>
-                <td>{user.postCode}</td>
-                <td>{user.phone}</td>
-                <td>{user.hobbies.join('\n')}</td>
-                <td>{user.url}</td>
-                {/* roleによって存在しないプロパティは三項演算子で分岐させる */}
-                {'studyMinutes' in user ? (
-                  <td>{user.studyMinutes}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'experienceDays' in user ? (
-                  <td>{user.experienceDays}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'taskCode' in user ? <td>{user.taskCode}</td> : <td></td>}
-                {'studyLangs' in user ? (
-                  <td>{user.studyLangs.join('\n')}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'useLangs' in user ? (
-                  <td>{user.useLangs.join('\n')}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'score' in user ? <td>{user.score}</td> : <td></td>}
-                {'availableStartCode' in user ? (
-                  <td>{user.availableStartCode}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'availableEndCode' in user ? (
-                  <td>{user.availableEndCode}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'availableStudent' in user ? (
-                  <td>{user.availableStudent.join('\n')}</td>
-                ) : (
-                  <td></td>
-                )}
-                {'availableMentor' in user ? (
-                  <td>{user.availableMentor.join('\n')}</td>
-                ) : (
-                  <td></td>
-                )}
-              </tr>
-            ))}
-          {tab === 'student' &&
+            userList.map((user) => <UserRow user={user} key={user.id} />)}
+          {(tab === 'student' || tab === 'mentor') &&
             (filteredList as Student[]).map((user) => (
-              <tr key={user.id}>
-                <th scope="row">{user.id}</th>
-                <td>{user.name}</td>
-                <td>{user.role}</td>
-                <td>{user.email}</td>
-                <td>{user.age}</td>
-                <td>{user.postCode}</td>
-                <td>{user.phone}</td>
-                {/* 配列を改行でつなげる */}
-                <td>{user.hobbies.join('\n')}</td>
-                <td>{user.url}</td>
-                <td>{user.studyMinutes}</td>
-                <td>{user.taskCode}</td>
-                {/* 配列を改行でつなげる */}
-                <td>{user.studyLangs.join('\n')}</td>
-                <td>{user.score}</td>
-                {/* 配列を改行でつなげる */}
-                <td>{user.availableMentor.join('\n')}</td>
-              </tr>
-            ))}
-          {tab === 'mentor' &&
-            (filteredList as Mentor[]).map((user) => (
-              <tr key={user.id}>
-                <th scope="row">{user.id}</th>
-                <td>{user.name}</td>
-                <td>{user.role}</td>
-                <td>{user.email}</td>
-                <td>{user.age}</td>
-                <td>{user.postCode}</td>
-                <td>{user.phone}</td>
-                {/* 配列を改行でつなげる */}
-                <td>{user.hobbies.join('\n')}</td>
-                <td>{user.url}</td>
-                <td>{user.experienceDays}</td>
-                {/* 配列を改行でつなげる */}
-                <td>{user.useLangs.join('\n')}</td>
-                <td>{user.availableStartCode}</td>
-                <td>{user.availableEndCode}</td>
-                {/* 配列を改行でつなげる */}
-                <td>{user.availableStudent.join('\n')}</td>
-              </tr>
+              <UserRow user={user} key={user.id} />
             ))}
         </tbody>
       </table>

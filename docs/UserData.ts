@@ -1,3 +1,5 @@
+import type { User } from '../src/types/types';
+
 export const USER_LIST = [
   {
     id: 1,
@@ -13,6 +15,7 @@ export const USER_LIST = [
     taskCode: 101,
     studyLangs: ['Rails', 'Javascript'],
     score: 68,
+    availableMentor: [],
   },
   {
     id: 2,
@@ -28,6 +31,7 @@ export const USER_LIST = [
     useLangs: ['Next.js', 'GoLang'],
     availableStartCode: 201,
     availableEndCode: 302,
+    availableStudent: [],
   },
   {
     id: 3,
@@ -43,6 +47,7 @@ export const USER_LIST = [
     taskCode: 204,
     studyLangs: ['Rails', 'Next.js'],
     score: 90,
+    availableMentor: [],
   },
   {
     id: 4,
@@ -58,6 +63,7 @@ export const USER_LIST = [
     useLangs: ['PHP', 'Javascript'],
     availableStartCode: 103,
     availableEndCode: 408,
+    availableStudent: [],
   },
   {
     id: 5,
@@ -73,6 +79,7 @@ export const USER_LIST = [
     taskCode: 305,
     studyLangs: ['Next.js', 'Rails'],
     score: 84,
+    availableMentor: [],
   },
   {
     id: 6,
@@ -88,6 +95,7 @@ export const USER_LIST = [
     useLangs: ['PHP', 'Javascript'],
     availableStartCode: 101,
     availableEndCode: 302,
+    availableStudent: [],
   },
   {
     id: 7,
@@ -103,6 +111,7 @@ export const USER_LIST = [
     taskCode: 401,
     studyLangs: ['PHP', 'Rails'],
     score: 73,
+    availableMentor: [],
   },
   {
     id: 8,
@@ -118,5 +127,6 @@ export const USER_LIST = [
     useLangs: ['Golang', 'Rails'],
     availableStartCode: 301,
     availableEndCode: 505,
+    availableStudent: [],
   },
-];
+] satisfies User[];
