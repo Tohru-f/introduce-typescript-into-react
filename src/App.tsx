@@ -41,7 +41,7 @@ function App() {
 
     // 初期データではavailableMentorとavailableStudentのプロパティが入力されていないので、
     // データから判別して決めてあげる
-    const withAvailableStudentAndMentor = userList.map((user) => {
+    userList.map((user) => {
       if (user.role === 'student') {
         const student = user as Student;
         const filteredMentor = mentorList.filter(
@@ -49,10 +49,7 @@ function App() {
             mentor.availableStartCode <= student.taskCode &&
             student.taskCode <= mentor.availableEndCode
         );
-        return {
-          ...student,
-          availableMentor: filteredMentor.map((m) => m.name),
-        } as Student;
+        student.availableMentor = filteredMentor.map((m) => m.name);
       }
 
       if (user.role === 'mentor') {
@@ -62,22 +59,16 @@ function App() {
             mentor.availableStartCode <= student.taskCode &&
             student.taskCode <= mentor.availableEndCode
         );
-        return {
-          ...mentor,
-          availableStudent: filteredStudent.map((s) => s.name),
-        } as Mentor;
+        mentor.availableStudent = filteredStudent.map((s) => s.name);
       }
-
-      return user;
     });
-    setUserList(withAvailableStudentAndMentor);
-    setFilteredList(withAvailableStudentAndMentor);
-  }, []);
+  }, [userList]);
 
   // タブの切り替えを管理
   const [tab, setTab] = useState<string>('user');
   const handleUserClick = () => {
     setTab('user');
+    setFilteredList(userList);
   };
   const handleStudentClick = () => {
     setTab('student');
@@ -143,7 +134,6 @@ function App() {
 
       {/* タブ別に表示するユーザー・生徒・メンターのコンポーネント */}
       <UserList
-        userList={userList}
         filteredList={filteredList}
         setFilteredList={setFilteredList}
         tab={tab}

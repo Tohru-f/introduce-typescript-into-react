@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { USER_LIST } from '../../public/UserData';
 import type { Mentor, Student, User } from '../types/types';
 
 const Modal = styled.div`
@@ -93,27 +92,44 @@ export const SignUpModal = ({
   //モーダルをstudentとmentorで分岐させるために使用
   const [modalType, setModalType] = useState<string>('');
 
-  // 大元のリストデータ
-  const baseList = USER_LIST as User[];
-
-  const mentorList = baseList.filter(
+  const mentorList = userList.filter(
     (mentorLike) => mentorLike.role === 'mentor'
   ) as Mentor[];
 
   // リストからidだけの配列を取り出し、一番大きい値のidをベースにidが重複しないようにインクリメントして付与する
-  const idList: number[] = baseList.map((user) => user.id);
+  const idList: number[] = userList.map((user) => user.id);
   const maxId = Math.max(...idList) + 1;
   const [designatedId, setDesignatedId] = useState<number>(maxId);
 
   const handleStudentRegistration = () => {
-    const studentInput = inputUser as Student;
+    const studentKeys = [
+      'id',
+      'name',
+      'role',
+      'email',
+      'age',
+      'postCode',
+      'phone',
+      'url',
+      'studyMinutes',
+      'taskCode',
+      'studyLangs',
+      'score',
+      'availableMentor',
+    ];
+    let studentInput = {} as Student;
+    for (const [key, value] of Object.entries(inputUser)) {
+      if (studentKeys.includes(key)) {
+        studentInput = { ...studentInput, [key]: value };
+      }
+    }
     // 入力されたtaskCodeに対応できるmentorのリストを作成する
     const availableMentor: Mentor[] = mentorList.filter(
       (mentor) =>
         mentor.availableStartCode <= studentInput.taskCode &&
         studentInput.taskCode <= mentor.availableEndCode
     );
-    // 対応可能なメンターの配列から前だけを取り出す
+    // 対応可能なメンターの配列から名前だけを取り出す
     const availableMentorsName: string[] = availableMentor.map(
       (mentor) => mentor.name
     );
@@ -169,12 +185,33 @@ export const SignUpModal = ({
     setDesignatedId(designatedId + 1);
   };
 
-  const studentList = baseList.filter(
+  const studentList = userList.filter(
     (studentLike) => studentLike.role === 'student'
   ) as Student[];
 
   const handleMentorRegistration = () => {
-    const mentorInput = inputUser as Mentor;
+    const mentorKeys = [
+      'id',
+      'name',
+      'role',
+      'email',
+      'age',
+      'postCode',
+      'phone',
+      'hobbies',
+      'url',
+      'experienceDays',
+      'useLangs',
+      'availableStartCode',
+      'availableEndCode',
+      'availableStudent',
+    ];
+    let mentorInput = {} as Mentor;
+    for (const [key, value] of Object.entries(inputUser)) {
+      if (mentorKeys.includes(key)) {
+        mentorInput = { ...mentorInput, [key]: value };
+      }
+    }
     const availableStudent: Student[] = studentList.filter(
       (student) =>
         mentorInput.availableStartCode <= student.taskCode &&

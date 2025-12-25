@@ -7,12 +7,10 @@ const BackGround = styled.div`
 `;
 
 export const UserList = ({
-  userList,
   filteredList,
   setFilteredList,
   tab,
 }: {
-  userList: User[];
   filteredList: User[];
   setFilteredList: React.Dispatch<React.SetStateAction<User[]>>;
   tab: string;
@@ -24,7 +22,7 @@ export const UserList = ({
   const [isAscendingScore, setIsAscendingScore] = useState<boolean>(false);
 
   // 定数sortedListに昇順・降順に並べ直した配列を代入して、set関数に渡すことで再レンダリングを促す
-  const handleStudyMinutesClick = () => {
+  const handleSortStudyMinutes = () => {
     if (tab !== 'student') {
       return;
     }
@@ -40,7 +38,7 @@ export const UserList = ({
   };
 
   // 定数sortedListに昇順・降順に並べ直した配列を代入して、set関数に渡すことで再レンダリングを促す
-  const handleScoreClick = () => {
+  const handleSortScore = () => {
     if (tab !== 'student') {
       return;
     }
@@ -59,7 +57,7 @@ export const UserList = ({
   const [isAscending, setIsAscending] = useState<boolean>(false);
 
   // 定数sortedListに昇順・降順に並べ直した配列を代入して、set関数に渡すことで再レンダリングを促す
-  const handleExperienceDays = () => {
+  const handleSortExperienceDays = () => {
     if (tab !== 'mentor') {
       return;
     }
@@ -76,71 +74,25 @@ export const UserList = ({
     }
   };
 
-  // 表示部分を管理するコンポーネント
-  const UserRow = ({ user }: { user: User }) => (
-    <tr>
-      <th scope="row">{user.id}</th>
-      <td>{user.name}</td>
-      <td>{user.role}</td>
-      <td>{user.email}</td>
-      <td>{user.age}</td>
-      <td>{user.postCode}</td>
-      <td>{user.phone}</td>
-      <td>{user.hobbies.join('\n')}</td>
-      <td>{user.url}</td>
-      {/* roleによって存在しないプロパティは三項演算子で分岐させる */}
-      {'studyMinutes' in user ? (
-        <td>{user.studyMinutes}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {'experienceDays' in user ? (
-        <td>{user.experienceDays}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {'taskCode' in user ? (
-        <td>{user.taskCode}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {/* 配列を改行でつなげる */}
-      {'studyLangs' in user ? (
-        <td>{user.studyLangs.join('\n')}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {/* 配列を改行でつなげる */}
-      {'useLangs' in user ? (
-        <td>{user.useLangs.join('\n')}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {'score' in user ? <td>{user.score}</td> : tab === 'user' && <td></td>}
-      {'availableStartCode' in user ? (
-        <td>{user.availableStartCode}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {'availableEndCode' in user ? (
-        <td>{user.availableEndCode}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {/* 配列を改行でつなげる */}
-      {'availableStudent' in user ? (
-        <td>{user.availableStudent.join('\n')}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-      {/* 配列を改行でつなげる */}
-      {'availableMentor' in user ? (
-        <td>{user.availableMentor.join('\n')}</td>
-      ) : (
-        tab === 'user' && <td></td>
-      )}
-    </tr>
-  );
+  // K extends keyof Userでは共通プロパティのBaseUserだけを対象としてしまうので、
+  // StudentとMentorの両方のプロパティを持つ型を作る
+  type UserKeys = keyof Student | keyof Mentor;
+
+  const renderOptionalCell = <K extends UserKeys>(
+    user: User,
+    key: K,
+    render: () => React.ReactNode, // Reactで表示可能な値を返す
+    tab: string
+  ) => {
+    if (key in user) {
+      return <td>{render()}</td>;
+    }
+    return tab === 'user' ? <td></td> : null;
+  };
+
+  const STUDENT_OR_USER = tab === 'user' || tab === 'student';
+
+  const MENTOR_OR_USER = tab === 'user' || tab === 'mentor';
 
   return (
     <BackGround>
@@ -156,51 +108,112 @@ export const UserList = ({
             <th scope="col">phone</th>
             <th scope="col">hobbies</th>
             <th scope="col">url</th>
-            {(tab === 'user' || tab === 'student') && (
-              <th scope="col" onClick={handleStudyMinutesClick}>
+            {STUDENT_OR_USER && (
+              <th scope="col" onClick={handleSortStudyMinutes}>
                 studyMinutes
               </th>
             )}
-            {(tab === 'user' || tab === 'mentor') && (
-              <th scope="col" onClick={handleExperienceDays}>
+            {MENTOR_OR_USER && (
+              <th scope="col" onClick={handleSortExperienceDays}>
                 experienceDays
               </th>
             )}
-            {(tab === 'user' || tab === 'student') && (
-              <th scope="col">taskCode</th>
-            )}
-            {(tab === 'user' || tab === 'student') && (
-              <th scope="col">studyLangs</th>
-            )}
-            {(tab === 'user' || tab === 'mentor') && (
-              <th scope="col">useLangs</th>
-            )}
-            {(tab === 'user' || tab === 'student') && (
-              <th scope="col" onClick={handleScoreClick}>
+            {STUDENT_OR_USER && <th scope="col">taskCode</th>}
+            {STUDENT_OR_USER && <th scope="col">studyLangs</th>}
+            {MENTOR_OR_USER && <th scope="col">useLangs</th>}
+            {STUDENT_OR_USER && (
+              <th scope="col" onClick={handleSortScore}>
                 score
               </th>
             )}
-            {(tab === 'user' || tab === 'mentor') && (
-              <th scope="col">availableStartCode</th>
-            )}
-            {(tab === 'user' || tab === 'mentor') && (
-              <th scope="col">availableEndCode</th>
-            )}
-            {(tab === 'user' || tab === 'mentor') && (
-              <th scope="col">availableStudent</th>
-            )}
-            {(tab === 'user' || tab === 'student') && (
-              <th scope="col">availableMentor</th>
-            )}
+            {MENTOR_OR_USER && <th scope="col">availableStartCode</th>}
+            {MENTOR_OR_USER && <th scope="col">availableEndCode</th>}
+            {MENTOR_OR_USER && <th scope="col">availableStudent</th>}
+            {STUDENT_OR_USER && <th scope="col">availableMentor</th>}
           </tr>
         </thead>
         <tbody>
-          {tab === 'user' &&
-            userList.map((user) => <UserRow user={user} key={user.id} />)}
-          {(tab === 'student' || tab === 'mentor') &&
-            (filteredList as Student[]).map((user) => (
-              <UserRow user={user} key={user.id} />
-            ))}
+          {filteredList.map((user) => (
+            <tr key={user.id}>
+              <th scope="row">{user.id}</th>
+              <td>{user.name}</td>
+              <td>{user.role}</td>
+              <td>{user.email}</td>
+              <td>{user.age}</td>
+              <td>{user.postCode}</td>
+              <td>{user.phone}</td>
+              <td>{user.hobbies.join('\n')}</td>
+              <td>{user.url}</td>
+              {/* roleによって存在しないプロパティは三項演算子で分岐させる */}
+              {renderOptionalCell(
+                user,
+                'studyMinutes',
+                () => ('studyMinutes' in user ? user.studyMinutes : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'experienceDays',
+                () => ('experienceDays' in user ? user.experienceDays : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'taskCode',
+                () => ('taskCode' in user ? user.taskCode : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'studyLangs',
+                () => ('studyLangs' in user ? user.studyLangs.join('\n') : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'useLangs',
+                () => ('useLangs' in user ? user.useLangs.join('\n') : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'score',
+                () => ('score' in user ? user.score : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'availableStartCode',
+                () =>
+                  'availableStartCode' in user ? user.availableStartCode : '',
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'availableEndCode',
+                () => ('availableEndCode' in user ? user.availableEndCode : ''),
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'availableStudent',
+                () =>
+                  'availableStudent' in user
+                    ? user.availableStudent.join('\n')
+                    : '',
+                tab
+              )}
+              {renderOptionalCell(
+                user,
+                'availableMentor',
+                () =>
+                  'availableMentor' in user
+                    ? user.availableMentor.join('\n')
+                    : '',
+                tab
+              )}
+            </tr>
+          ))}
         </tbody>
       </table>
     </BackGround>
