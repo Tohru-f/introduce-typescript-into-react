@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import type { Mentor, Student, User } from '../types/types';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const BackGround = styled.div`
   width: 100%;
@@ -96,41 +96,48 @@ export const UserList = ({
 
   const MENTOR_OR_USER = tab === 'user' || tab === 'mentor';
 
-  useEffect(() => {
-    // mentorのみのリストであり、型アサーションで型を確定させている
-    const mentorList = userList.filter(
-      (mentorLike) => mentorLike.role === 'mentor'
-    ) as Mentor[];
+  // mentorのみのリストであり、型アサーションで型を確定させている
+  const mentorList = userList.filter(
+    (mentorLike) => mentorLike.role === 'mentor'
+  ) as Mentor[];
 
-    // studentのみのリストであり、型アサーションで型を確定させている
-    const studentList = userList.filter(
-      (studentLike) => studentLike.role === 'student'
-    ) as Student[];
+  // studentのみのリストであり、型アサーションで型を確定させている
+  const studentList = userList.filter(
+    (studentLike) => studentLike.role === 'student'
+  ) as Student[];
 
-    // 初期データではavailableMentorとavailableStudentのプロパティが入力されていないので、
-    // データから判別して決めてあげる
-    userList.map((user) => {
-      if (user.role === 'student') {
-        const student = user as Student;
-        const filteredMentor = mentorList.filter(
-          (mentor) =>
-            mentor.availableStartCode <= student.taskCode &&
-            student.taskCode <= mentor.availableEndCode
-        );
-        student.availableMentor = filteredMentor.map((m) => m.name);
-      }
+  // 初期データではavailableMentorとavailableStudentのプロパティが入力されていないので、
+  // データから判別して決めてあげる
+  const displayList = filteredList.map((user) => {
+    if (user.role === 'student') {
+      const student = user as Student;
+      const filteredMentor = mentorList.filter(
+        (mentor) =>
+          mentor.availableStartCode <= student.taskCode &&
+          student.taskCode <= mentor.availableEndCode
+      );
+      return {
+        ...student,
+        availableMentor: filteredMentor.map((m) => m.name),
+      };
+      // student.availableMentor = filteredMentor.map((m) => m.name);
+    }
 
-      if (user.role === 'mentor') {
-        const mentor = user as Mentor;
-        const filteredStudent = studentList.filter(
-          (student) =>
-            mentor.availableStartCode <= student.taskCode &&
-            student.taskCode <= mentor.availableEndCode
-        );
-        mentor.availableStudent = filteredStudent.map((s) => s.name);
-      }
-    });
-  }, [userList]);
+    if (user.role === 'mentor') {
+      const mentor = user as Mentor;
+      const filteredStudent = studentList.filter(
+        (student) =>
+          mentor.availableStartCode <= student.taskCode &&
+          student.taskCode <= mentor.availableEndCode
+      );
+      return {
+        ...mentor,
+        availableStudent: filteredStudent.map((s) => s.name),
+      };
+      // mentor.availableStudent = filteredStudent.map((s) => s.name);
+    }
+    return user;
+  });
 
   return (
     <BackGround>
@@ -171,7 +178,7 @@ export const UserList = ({
           </tr>
         </thead>
         <tbody>
-          {filteredList.map((user) => (
+          {displayList.map((user) => (
             <tr key={user.id}>
               <th scope="row">{user.id}</th>
               <td>{user.name}</td>

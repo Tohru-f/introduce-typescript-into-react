@@ -60,9 +60,9 @@ export const SignUpModal = ({
 }) => {
   // student, mentorの両方でhobbiesを管理するために別途作成。他のプロパティと同様に直接set関数で受け取ると
   // splitメソッドが意図した通りに機能しないので、userListに登録する直前まではこれらのstate変数で管理する
-  const [hobbiesInput, setHobbiesInput] = useState<string>(''); //student, mentorの両方で使用
-  const [studyLangsInput, setStudyLangsInput] = useState<string>(''); // studentで使用
-  const [useLangsInput, setUseLangsInput] = useState<string>(''); // mentorで使用
+  // const [hobbiesInput, setHobbiesInput] = useState<string>(''); //student, mentorの両方で使用
+  // const [studyLangsInput, setStudyLangsInput] = useState<string>(''); // studentで使用
+  // const [useLangsInput, setUseLangsInput] = useState<string>(''); // mentorで使用
 
   // student・mentorの入力内容を管理する
   // 型は入力受付用でInputUser型を新たに設けた。
@@ -111,59 +111,6 @@ export const SignUpModal = ({
     availableStudent: [],
   };
 
-  // 入力を受け付けたstate変数から分割代入で個別に値を取り出す。
-  // hobbies, studyLangs, useLangsは別のstate変数で管理しているので、別処理で対応する。
-  const {
-    id,
-    name,
-    role,
-    email,
-    age,
-    postCode,
-    phone,
-    url,
-    studyMinutes,
-    taskCode,
-    score,
-    availableMentor,
-    experienceDays,
-    availableStartCode,
-    availableEndCode,
-    availableStudent,
-  } = inputUser;
-
-  // inputUserから取り出した入力値を使ってユーザー登録に使う元データを準備する。
-  let registeredUser: User = {
-    id,
-    name,
-    role,
-    email,
-    age,
-    postCode,
-    phone,
-    hobbies: hobbiesInput
-      .split(',')
-      .map((hobby) => hobby.trim())
-      .filter((hobby) => hobby !== ''),
-    url,
-    studyMinutes,
-    taskCode,
-    studyLangs: studyLangsInput
-      .split(',')
-      .map((studyLang) => studyLang.trim())
-      .filter((studyLang) => studyLang !== ''),
-    score,
-    availableMentor,
-    experienceDays,
-    useLangs: useLangsInput
-      .split(',')
-      .map((useLang) => useLang.trim())
-      .filter((useLang) => useLang !== ''),
-    availableStartCode,
-    availableEndCode,
-    availableStudent,
-  };
-
   //モーダルをstudentとmentorで分岐させるために使用
   const [modalType, setModalType] = useState<string>('');
 
@@ -176,36 +123,114 @@ export const SignUpModal = ({
 
   // ユーザー登録機能をmodalTypeで分岐してStudent, Mentorの登録を管理する。
   const handleRegistration = () => {
+    // 入力を受け付けたstate変数から分割代入で個別に値を取り出す。
+    // hobbies, studyLangs, useLangsは別のstate変数で管理しているので、別処理で対応する。
+    const {
+      id,
+      name,
+      role,
+      email,
+      age,
+      postCode,
+      phone,
+      url,
+      hobbies,
+      studyMinutes,
+      taskCode,
+      studyLangs,
+      score,
+      availableMentor,
+      experienceDays,
+      useLangs,
+      availableStartCode,
+      availableEndCode,
+      availableStudent,
+    } = inputUser;
+
+    // inputUserから取り出した入力値を使ってユーザー登録に使う元データを準備する。
+    // let registeredUser: User = {
+    //   id,
+    //   name,
+    //   role,
+    //   email,
+    //   age,
+    //   postCode,
+    //   phone,
+    //   hobbies: hobbiesInput
+    //     .split(',')
+    //     .map((hobby) => hobby.trim())
+    //     .filter((hobby) => hobby !== ''),
+    //   url,
+    //   studyMinutes,
+    //   taskCode,
+    //   studyLangs: studyLangsInput
+    //     .split(',')
+    //     .map((studyLang) => studyLang.trim())
+    //     .filter((studyLang) => studyLang !== ''),
+    //   score,
+    //   availableMentor,
+    //   experienceDays,
+    //   useLangs: useLangsInput
+    //     .split(',')
+    //     .map((useLang) => useLang.trim())
+    //     .filter((useLang) => useLang !== ''),
+    //   availableStartCode,
+    //   availableEndCode,
+    //   availableStudent,
+    // };
+
     if (modalType === 'student') {
+      let registeredUser: User = {
+        id,
+        name,
+        role,
+        email,
+        age,
+        postCode,
+        phone,
+        hobbies: hobbies
+          .split(',')
+          .map((hobby) => hobby.trim())
+          .filter((hobby) => hobby !== ''),
+        url,
+        studyMinutes,
+        taskCode,
+        studyLangs: studyLangs
+          .split(',')
+          .map((studyLang) => studyLang.trim())
+          .filter((studyLang) => studyLang !== ''),
+        score,
+        availableMentor,
+      };
       // Studentタイプに必要なプロパティ名のリスト
-      const studentKeys = [
-        'id',
-        'name',
-        'role',
-        'email',
-        'age',
-        'postCode',
-        'phone',
-        'hobbies',
-        'url',
-        'studyMinutes',
-        'taskCode',
-        'studyLangs',
-        'score',
-        'availableMentor',
-      ];
-      // registeredUserからStudentタイプに必要な値だけを列挙する
-      let studentInput = {} as Student;
-      for (const [key, value] of Object.entries(registeredUser)) {
-        if (studentKeys.includes(key)) {
-          studentInput = { ...studentInput, [key]: value };
-        }
-      }
+      // const studentKeys = [
+      //   'id',
+      //   'name',
+      //   'role',
+      //   'email',
+      //   'age',
+      //   'postCode',
+      //   'phone',
+      //   'hobbies',
+      //   'url',
+      //   'studyMinutes',
+      //   'taskCode',
+      //   'studyLangs',
+      //   'score',
+      //   'availableMentor',
+      // ];
+      // // registeredUserからStudentタイプに必要な値だけを列挙する
+      // let studentInput = {} as Student;
+      // for (const [key, value] of Object.entries(registeredUser)) {
+      //   if (studentKeys.includes(key)) {
+      //     studentInput = { ...studentInput, [key]: value };
+      //   }
+      // }
 
       // set関数で新しく登録するためのstudentデータを定数のオブジェクトで生成する。
       // split, map, filterの部分はそれぞれをstate変数として管理している特定のプロパティをカンマで区切った配列に切り替える
       const nextStudent: Student = {
-        ...studentInput,
+        ...registeredUser,
         id: idRef.current,
         role: 'student',
       };
@@ -215,46 +240,68 @@ export const SignUpModal = ({
       setUserList(addedUserList);
       close();
       // 新規登録が終わったらそれぞれの入力内容はデフォルトに戻して、idのstate変数は次に備えてインクリメントする
-      setHobbiesInput('');
-      setStudyLangsInput('');
+      // setHobbiesInput('');
+      // setStudyLangsInput('');
       setInputUser(resetUser);
       setModalType('');
       idRef.current += idRef.current;
     } else {
+      let registeredUser: User = {
+        id,
+        name,
+        role,
+        email,
+        age,
+        postCode,
+        phone,
+        hobbies: hobbies
+          .split(',')
+          .map((hobby) => hobby.trim())
+          .filter((hobby) => hobby !== ''),
+        url,
+        experienceDays,
+        useLangs: useLangs
+          .split(',')
+          .map((useLang) => useLang.trim())
+          .filter((useLang) => useLang !== ''),
+        availableStartCode,
+        availableEndCode,
+        availableStudent,
+      };
       // Mentorタイプに必要なプロパティ名のリスト
-      const mentorKeys = [
-        'id',
-        'name',
-        'role',
-        'email',
-        'age',
-        'postCode',
-        'phone',
-        'hobbies',
-        'url',
-        'experienceDays',
-        'useLangs',
-        'availableStartCode',
-        'availableEndCode',
-        'availableStudent',
-      ];
-      // registeredUserからMentorに必要な値だけを列挙
-      let mentorInput = {} as Mentor;
-      for (const [key, value] of Object.entries(registeredUser)) {
-        if (mentorKeys.includes(key)) {
-          mentorInput = { ...mentorInput, [key]: value };
-        }
-      }
+      // const mentorKeys = [
+      //   'id',
+      //   'name',
+      //   'role',
+      //   'email',
+      //   'age',
+      //   'postCode',
+      //   'phone',
+      //   'hobbies',
+      //   'url',
+      //   'experienceDays',
+      //   'useLangs',
+      //   'availableStartCode',
+      //   'availableEndCode',
+      //   'availableStudent',
+      // ];
+      // // registeredUserからMentorに必要な値だけを列挙
+      // let mentorInput = {} as Mentor;
+      // for (const [key, value] of Object.entries(registeredUser)) {
+      //   if (mentorKeys.includes(key)) {
+      //     mentorInput = { ...mentorInput, [key]: value };
+      //   }
+      // }
       const nextMentor: Mentor = {
-        ...mentorInput,
+        ...registeredUser,
         id: idRef.current,
         role: 'mentor',
       };
       const addedUserList = [...userList, nextMentor];
       setUserList(addedUserList);
       close();
-      setHobbiesInput('');
-      setUseLangsInput('');
+      // setHobbiesInput('');
+      // setUseLangsInput('');
       setInputUser(resetUser);
       setModalType('');
       idRef.current += idRef.current;
@@ -323,8 +370,8 @@ export const SignUpModal = ({
           placeholder="hobbies"
           name="hobbies"
           // 型が配列でsplitを使ったカンマ区切りで配列に切り替えたいので、別途state変数を設けて管理する
-          value={hobbiesInput}
-          onChange={(event) => setHobbiesInput(event.target.value)}
+          value={inputUser.hobbies}
+          onChange={handleUserChange}
         />
         <Label>url</Label>
         <input
@@ -354,8 +401,8 @@ export const SignUpModal = ({
               placeholder="studyLangs"
               name="studyLangs"
               // 型が配列でsplitを使ったカンマ区切りで配列に切り替えたいので、別途state変数を設けて管理する
-              value={studyLangsInput}
-              onChange={(event) => setStudyLangsInput(event.target.value)}
+              value={inputUser.studyLangs}
+              onChange={handleUserChange}
             />
             <Label>score</Label>
             <input
@@ -380,8 +427,8 @@ export const SignUpModal = ({
               placeholder="useLangs"
               name="useLangs"
               // 型が配列でsplitを使ったカンマ区切りで配列に切り替えたいので、別途state変数を設けて管理する
-              value={useLangsInput}
-              onChange={(event) => setUseLangsInput(event.target.value)}
+              value={inputUser.useLangs}
+              onChange={handleUserChange}
             />
             <Label>availableStartCode</Label>
             <input
