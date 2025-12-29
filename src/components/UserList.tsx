@@ -92,9 +92,9 @@ export const UserList = ({
     return tab === 'user' ? <td></td> : null;
   };
 
-  const STUDENT_OR_USER = tab === 'user' || tab === 'student';
+  const studentOrUser = tab === 'user' || tab === 'student';
 
-  const MENTOR_OR_USER = tab === 'user' || tab === 'mentor';
+  const mentorOrUser = tab === 'user' || tab === 'mentor';
 
   // mentorのみのリストであり、型アサーションで型を確定させている
   const mentorList = userList.filter(
@@ -153,28 +153,28 @@ export const UserList = ({
             <th scope="col">phone</th>
             <th scope="col">hobbies</th>
             <th scope="col">url</th>
-            {STUDENT_OR_USER && (
+            {studentOrUser && (
               <th scope="col" onClick={handleSortStudyMinutes}>
                 studyMinutes
               </th>
             )}
-            {MENTOR_OR_USER && (
+            {mentorOrUser && (
               <th scope="col" onClick={handleSortExperienceDays}>
                 experienceDays
               </th>
             )}
-            {STUDENT_OR_USER && <th scope="col">taskCode</th>}
-            {STUDENT_OR_USER && <th scope="col">studyLangs</th>}
-            {MENTOR_OR_USER && <th scope="col">useLangs</th>}
-            {STUDENT_OR_USER && (
+            {studentOrUser && <th scope="col">taskCode</th>}
+            {studentOrUser && <th scope="col">studyLangs</th>}
+            {mentorOrUser && <th scope="col">useLangs</th>}
+            {studentOrUser && (
               <th scope="col" onClick={handleSortScore}>
                 score
               </th>
             )}
-            {MENTOR_OR_USER && <th scope="col">availableStartCode</th>}
-            {MENTOR_OR_USER && <th scope="col">availableEndCode</th>}
-            {MENTOR_OR_USER && <th scope="col">availableStudent</th>}
-            {STUDENT_OR_USER && <th scope="col">availableMentor</th>}
+            {mentorOrUser && <th scope="col">availableStartCode</th>}
+            {mentorOrUser && <th scope="col">availableEndCode</th>}
+            {mentorOrUser && <th scope="col">availableStudent</th>}
+            {studentOrUser && <th scope="col">availableMentor</th>}
           </tr>
         </thead>
         <tbody>
